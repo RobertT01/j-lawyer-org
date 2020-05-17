@@ -665,6 +665,7 @@ package com.jdimension.jlawyer.client.utils;
 
 import com.jdimension.jlawyer.client.editors.EditorsRegistry;
 import com.jdimension.jlawyer.client.launcher.LauncherFactory;
+import com.jdimension.jlawyer.client.settings.ClientSettings;
 import com.jdimension.jlawyer.server.utils.ServerFileUtils;
 import java.awt.Component;
 import java.io.File;
@@ -875,12 +876,18 @@ public class FileUtils extends ServerFileUtils {
         String osName = System.getProperty("os.name").toLowerCase();
         String tmpDir = System.getProperty("java.io.tmpdir");
         if (osName.startsWith("mac")) {
-            // otherwise mac os 10.15+ will give a warning and user needs to grant access manually
-            tmpDir="/Users/" + System.getProperty("user.name") + "/Library/Group Containers/UBF8T346G9.Office";
-            if(!(new File(tmpDir).exists()) || !(new File(tmpDir).isDirectory())) {
-                throw new Exception("Ungültiges temporäres Verzeichnis: " + tmpDir);
+
+            ClientSettings set = ClientSettings.getInstance();
+            String wordProcessor = set.getConfiguration(ClientSettings.CONF_APPS_WORDPROCESSOR_KEY, ClientSettings.CONF_APPS_WORDPROCESSOR_VALUE_LO);
+            boolean wordProcessorMicrosoft = ClientSettings.CONF_APPS_WORDPROCESSOR_VALUE_MSO.equalsIgnoreCase(wordProcessor);
+
+            if (wordProcessorMicrosoft) {
+                // otherwise mac os 10.15+ will give a warning and user needs to grant access manually
+                tmpDir = "/Users/" + System.getProperty("user.name") + "/Library/Group Containers/UBF8T346G9.Office";
+                if (!(new File(tmpDir).exists()) || !(new File(tmpDir).isDirectory())) {
+                    throw new Exception("Ungültiges temporäres Verzeichnis: " + tmpDir);
+                }
             }
-            //tmpDir=System.getProperty("user.home");
         }
         
         
